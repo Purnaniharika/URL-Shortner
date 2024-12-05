@@ -1,7 +1,14 @@
 const express = require("express");
 const path = require("path");
+const cookiParser = require('cookie-parser')
+const {restrictToLoggedinUserOnly,checkAuth} = require('./middleware/auth.js')
+//Routes
+const userRoute = require("./routes/user.js")
 const urlRoute = require("./routes/url.js")
 const staticRoute = require("./routes/staticRouter.js")
+
+//midlleware
+
 const {MongoConnect }= require("./connection.js")
 
 const {URL} = require("./models/url.js")
@@ -19,10 +26,12 @@ app.set('view engine', 'ejs');
 app.set('views',path.resolve("./views"));
 
 app.use(express.json())
+app.use(cookiParser())
 app.use(express.urlencoded({extended:false}))
 
-app.use("/",staticRoute);
-app.use("/url",urlRoute);
+app.use('/user',userRoute);
+app.use("/",checkAuth,staticRoute);
+app.use("/url",restrictToLoggedinUserOnly,urlRoute);  //inline middleware
 
 // app.get("/test",async(req,res)=>{
 //     const allUrls = await URL.find({});
