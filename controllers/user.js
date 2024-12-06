@@ -18,12 +18,11 @@ async function handleUserLogin(req,res){
     const user = await User.findOne({
         email,password
     })
-    if(!user) return res.render('login',{
+    if(!user || !user._id || !user.email) return res.render('login',{
         error : "Invlaid Username or password"
     });
-   const sessionId = uuidv4();
-   setUser(sessionId,user);
-   res.cookie('uid',sessionId)
+  const token = setUser(user);
+   res.cookie('uid',token)
    return res.redirect('/');
 }
 module.exports = {handleUserSignUp,
