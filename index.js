@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cookiParser = require('cookie-parser')
-const {restrictToLoggedinUserOnly,checkAuth} = require('./middleware/auth.js')
+const {checkForAuthentication,restrictTo} = require('./middleware/auth.js')
 //Routes
 const userRoute = require("./routes/user.js")
 const urlRoute = require("./routes/url.js")
@@ -28,10 +28,11 @@ app.set('views',path.resolve("./views"));
 app.use(express.json())
 app.use(cookiParser())
 app.use(express.urlencoded({extended:false}))
+app.use(checkForAuthentication)
 
 app.use('/user',userRoute);
-app.use("/",checkAuth,staticRoute);
-app.use("/url",restrictToLoggedinUserOnly,urlRoute);  //inline middleware
+app.use("/",staticRoute);
+app.use("/url",restrictTo(["Normal","Admin"]),urlRoute);  //inline middleware
 
 // app.get("/test",async(req,res)=>{
 //     const allUrls = await URL.find({});
